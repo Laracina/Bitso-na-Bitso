@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitchô Na Bitchô</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#00897b">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <link rel="stylesheet" href="IB.css">
+</head>
+<body>
+
+    <section id="page-login" class="app-page">
+    <div class="login-container">
+        <div class="profile-avatar-large" id="login-logo">B</div>
+        <h1 id="login-title">Bitchô Na Bitchô</h1>
+        <p id="login-subtitle">Gestion Solidaire</p>
+
+        <div id="login-choices">
+            <button class="btn-save-modern" onclick="showAuth('rejoindre')">Rejoindre une Réunion</button>
+            <button class="btn-pdf-modern" onclick="showAuth('creer')" style="margin-top:10px;">Créer ma Tontine</button>
+        </div>
+
+        <div id="auth-rejoindre" class="hidden" style="width: 100%;">
+            <div class="input-group-modern">
+                <label>Code de la Réunion</label>
+                <input type="text" id="join-code" placeholder="Ex: BK-402">
+            </div>
+            <div class="input-group-modern">
+        <label>Votre Nom Complet</label>
+        <input type="text" id="join-nom" placeholder="Ex: Paul">
+    </div>
+    <div class="input-group-modern">
+                <label>Numéro de Téléphone :</label>
+                <input type="tel" id="input-fiche-telephone" placeholder="Ex: +242 06 XXX XX XX"> 
+            </div>
+            <div class="input-group-modern">
+                <label>Adresse E-mail :</label>
+                <input type="email" id="input-fiche-email" placeholder="Ex: membre@bitcho.com">
+            </div>
+            
+            <button class="btn-save-modern" onclick="connexionTontine()">Se connecter</button>
+            <p onclick="showAuth('choices')" style="cursor:pointer; font-size:0.8rem; margin-top:15px; color:var(--primary);">← Retour</p>
+        </div>
+
+
+        <div id="auth-creer" class="hidden" style="width: 100%; text-align: left;">
+            <div class="input-group-modern">
+                <label>Nom de l'Association</label>
+                <input type="text" id="create-asso-name" placeholder="Ex: Les Amis de Douala">
+            </div>
+            <div class="input-group-modern">
+                <label>Nom du Président</label>
+                <input type="text" id="boss-name" placeholder="Votre nom complet">  
+            </div>
+            
+            <div class="input-group-modern">
+                <label>Numéro de Téléphone :</label>
+                <input type="tel" id="input-fiche-telephone" placeholder="Ex: +242 06 XXX XX XX"> 
+            </div>
+            <div class="input-group-modern">
+                <label>Adresse E-mail :</label>
+                <input type="email" id="input-fiche-email" placeholder="Ex: membre@bitcho.com">
+            </div>
+
+            <div class="input-group-modern">
+    <label>Fréquence des Réunions</label>
+    <select id="creer-frequence">
+        <option value="7">Chaque semaine (7 jours)</option>
+        <option value="14">Chaque 2 semaines (14 jours)</option>
+        <option value="30">Chaque mois (30 jours)</option>
+    </select>
+</div>
+<div class="input-group-modern">
+    <label>Montant de la cotisation standard (FCFA)</label>
+    <input type="number" id="creer-montant-base" value="10000">
+</div>
+            <div class="input-group-modern">
+                <label>Devise</label>
+                <select id="create-asso-currency">
+                    <option value="XAF">FCFA (XAF)</option>
+                    <option value="EUR">Euro (€)</option>
+                    <option value="USD">Dollar ($)</option>
+                </select>
+            </div>
+            <button class="btn-save-modern" onclick="finaliserCreation()">Lancer la Tontine</button>
+            <p onclick="showAuth('choices')" style="cursor:pointer; font-size:0.8rem; text-align:center; margin-top:15px; color:var(--primary);">← Retour</p>
+        </div>
+
+    </div>
+</section>
+
+
+    <header class="main-header hidden" style="display: flex; justify-content: space-between; align-items: center; padding: 8px 15px; height: 50px; background: #2c3e50; color: white; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 999;">
+    
+    <div style="display: flex; align-items: center; gap: 8px;">
+        <div style="width: 32px; height: 32px; background: #27ae60; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; box-shadow: 0 2px 4px rgba(0,0,0,0.15);">B</div>
+        <div style="display: flex; flex-direction: column;">
+            <span style="font-size: 0.9rem; font-weight: bold; letter-spacing: 0.5px; line-height: 1.1;">Bitchô Na Bitchô</span>
+            <span id="role-display" style="font-size: 0.65rem; color: #bdc3c7; line-height: 1;">Membre</span>
+        </div>
+    </div>
+
+    <div style="display: flex; align-items: center; gap: 15px;">
+        
+        <div class="header-icons" style="position: relative; cursor: pointer; font-size: 1.1rem;" onclick="ouvrirBoiteNotifs()">
+            <i class="fas fa-bell"></i>
+            <span id="notif-badge" style="position: absolute; top: -5px; right: -5px; background-color: #e74c3c; color: white; font-size: 0.6rem; padding: 1px 5px; border-radius: 50%; font-weight: bold; display: none;">0</span>
+        </div>
+
+        <div style="position: relative; cursor: pointer;" onclick="document.getElementById('avatar-upload-input').click();" title="Changer ma photo de profil">
+            <img id="user-profile-avatar" src="" alt="" style="width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid #27ae60; background: #ecf0f1; display: none;">
+            <div id="user-profile-avatar-placeholder" style="width: 34px; height: 34px; border-radius: 50%; background: #34495e; color: #bdc3c7; display: flex; align-items: center; justify-content: center; border: 2px solid #27ae60; font-size: 0.9rem;">
+                <i class="fas fa-user"></i>
+            </div>
+            <input type="file" id="avatar-upload-input" accept="image/*" style="display: none;" onchange="changerMaPhotoDeProfil(this)">
+        </div>
+
+        <span id="user-name" style="font-size: 0.85rem; font-weight: 500; color: #ecf0f1; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Membre</span>
+    </div>
+</header>
+
+<div id="boite-notifs-deroulante" class="card shadow-sm" style="display: none; position: absolute; right: 55px; top: 48px; z-index: 1000; width: 280px; max-height: 300px; overflow-y: auto; padding: 12px; border: 1px solid #eee; background: white; border-radius: 8px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f1f1f1; padding-bottom: 5px; margin-bottom: 8px;">
+        <h5 style="margin: 0; font-size: 0.85rem; color: #2c3e50;"><i class="fas fa-envelope-open-text"></i> Messages du Bureau</h5>
+        <button onclick="toutMarquerLu()" style="background: none; border: none; color: #27ae60; font-size: 0.75rem; cursor: pointer; font-weight: bold;">Tout lire</button>
+    </div>
+    <div id="liste-notifs-contenu" style="font-size: 0.8rem; color: #555;"></div>
+</div>
+
+<div id="boite-notifs-deroulante" class="card shadow-sm" style="display: none; position: absolute; right: 15px; top: 60px; z-index: 1000; width: 280px; max-height: 300px; overflow-y: auto; padding: 10px; border: 1px solid #eee;">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 8px;">
+        <h5 style="margin: 0; font-size: 0.9rem;"><i class="fas fa-envelope-open-text"></i> Messages du Bureau</h5>
+        <button onclick="toutMarquerLu()" style="background: none; border: none; color: var(--primary-color); font-size: 0.75rem; cursor: pointer; font-weight: bold;">Tout lire</button>
+    </div>
+    <div id="liste-notifs-contenu" style="font-size: 0.85rem; color: #555;">
+        </div>
+</div>
+ 
+
+
+<div id="zone-notification-membre" style="display: none; margin: 10px 15px;"></div>
+    <main class="content-area">
+        
+        <section id="page-home" class="app-page hidden">
+            <div class="welcome-msg">
+                <h3>Mon Portefeuille</h3>
+                <p>Situation au 24 Mars 2026</p>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card"><strong>Épargne :</strong><span id="v-epargne"> 0 F</span></div>
+                <div class="stat-card"><strong>Développement :</strong><span id="v-dev"> 0 F</span></div>
+                <div class="stat-card"><strong>Fonds Caisse :</strong><span id="v-fond"> 0 F</span></div>
+                <div class="stat-card"><strong>Scolaire :</strong><span id="v-scolaire"> 0 F</span></div>
+                <div class="stat-card warn"><strong>Sanctions :</strong><span id="v-sanctions"> 0 F</span></div>
+                <div class="stat-card loan"><strong>Emprunt Ord. :</strong><span id="v-emp-ord"> 0 F</span></div>
+                <div class="stat-card loan"><strong>Emprunt Spéc. :</strong><span id="v-emp-spec"> 0 F</span></div>
+                <div class="stat-card total-debt-card"><strong>Dette Totale  :</strong><span id="v-total-dette">  0 F</span></div>
+            </div>
+
+            <div class="card service-card">
+                <div class="service-header"><i class="fas fa-hand-holding-usd"></i><h3>Demander un Emprunt</h3></div>
+                <div class="loan-input-group">
+                    <select id="user-loan-type" onchange="calculerInteretMembre()">
+                        <option value="ordinaire">Ordinaire (Taux: <span id="display-taux-ord">10</span>%)</option>
+                        <option value="special">Spécial (Taux: <span id="display-taux-spec">10</span>%)</option>
+                    </select>
+                    <input type="number" id="user-loan-amount" placeholder="Montant souhaité" oninput="calculerInteretMembre()">
+                    
+                    <div id="info-interet-table" class="interet-box hidden">
+                        <i class="fas fa-info-circle"></i> Intérêt à poser sur la table : <strong id="val-interet-table">0</strong> F
+                    </div>
+
+                    <button onclick="soumettreEmprunt()" class="btn-loan-submit">Envoyer la demande</button>
+                </div>
+
+                <div class="payment-divider"><span>OU PAYER MA DETTE VIA</span></div>
+                
+                <div class="momo-group-vertical">
+                    <button onclick="ouvrirMomo('Orange')" class="btn-momo-large orange-money">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Orange_logo.svg/1200px-Orange_logo.svg.png" width="20"> Orange Money
+                    </button>
+                    <button onclick="ouvrirMomo('MTN')" class="btn-momo-large mtn-money">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/MTN_Logo.svg/1024px-MTN_Logo.svg.png" width="20"> MTN MoMo
+                    </button>
+                </div>
+            </div>
+        </section>
+
+      <section id="page-annonces" class="app-page hidden">
+    <div class="section-title">
+        <h3><i class="fas fa-calendar-alt" style="color: #27ae60;"></i> Annonces & Activités</h3>
+    </div>
+    
+    <div id="bloc-notif-bureau-interactif">
+        </div>
+
+    <h4 style="margin-top: 25px; padding-left: 5px; color: #2c3e50;"><i class="fas fa-hourglass-half"></i> Prochaines Réunions</h4>
+    <div id="liste-agenda-cards" class="agenda-container"></div>
+</section>
+
+<section id="page-rapports" class="app-page hidden">
+    <div class="section-title">
+        <h3><i class="fas fa-folder-open" style="color: #f1c40f;"></i> Mes Documents & Archives</h3>
+    </div>
+    
+    <div class="card shadow-sm">
+        <h4><i class="fas fa-receipt"></i> Dernier Reçu de Séance</h4>
+        <div id="recu-container" class="recu-preview">
+            <p style="font-size:0.8rem; color:#888;">Aucun versement validé pour cette séance.</p>
+        </div>
+        <button id="btn-dl-recu" class="btn-admin-submit hidden" onclick="telechargerRecu()" style="background:#444; margin-top:10px;">
+            <i class="fas fa-download"></i> Télécharger mon Reçu
+        </button>
+    </div>
+
+    <div class="card shadow-sm" style="border-left: 5px solid var(--primary-color, #e74c3c);">
+        <h4><i class="fas fa-tasks"></i> Mes Responsabilités</h4>
+        <ul class="liste-devoirs" id="devoirs-membre" style="list-style: none; padding-left: 0; line-height: 1.8;">
+            <li><i class="fas fa-check-circle" style="color: #27ae60;"></i> Cotisation mensuelle obligatoire.</li>
+            <li><i class="fas fa-check-circle" style="color: #27ae60;"></i> Présence aux séances (ou amende de 5000F).</li>
+            <li><i class="fas fa-check-circle" style="color: #27ae60;"></i> Remboursement des intérêts sur table.</li>
+        </ul>
+    </div>
+
+    <div class="card shadow-sm" style="margin-top: 25px; padding: 15px;">
+        <h4><i class="fas fa-archive" style="color: #f1c40f;"></i> Rapports & Documents Officiels</h4>
+        <p style="font-size: 0.8rem; color: gray; margin-bottom: 15px;">Consultez et téléchargez les rapports de réunions (PV) du Secrétariat et les décrets du Président.</p>
+        
+        <div id="liste-documents-membres">
+            <p style="text-align: center; color: gray; font-size: 0.85rem; padding: 10px;">Aucun document officiel n'est disponible pour le moment.</p>
+        </div>
+    </div>
+</section>
+
+       
+      <section id="page-params" class="app-page hidden">
+
+    <div class="profile-header" style="display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); margin-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="avatar-picker-wrapper" onclick="document.getElementById('upload-avatar-input').click()" style="cursor: pointer; position: relative;">
+                <div class="profile-avatar-large" id="prof-avatar-image" style="width: 40px; height: 40px; border-radius: 50%; background: #27ae60; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 1rem;">B</div>
+                <input type="file" id="upload-avatar-input" class="avatar-upload-input" accept="image/*" onchange="changerPhotoProfil(this)" style="display: none;">
+            </div>
+            <div class="profile-info">
+                <h4 id="prof-display-name" style="margin: 0; font-size: 0.95rem; color: #2c3e50; font-weight: bold;">Chargement...</h4>
+                <span style="font-size: 0.65rem; color: #27ae60; background: #e8f8f5; padding: 1px 6px; border-radius: 10px; font-weight: 500;">Membre Vérifié</span>
+            </div>
+        </div>
+        <div style="text-align: right;">
+            <span id="prof-display-role" style="font-size: 0.75rem; color: #7f8c8d; font-weight: bold; background: #f1f2f6; padding: 4px 8px; border-radius: 6px;">Membre Actif</span>
+        </div>
+    </div>
+
+    <div class="card" style="margin-top: 10px; text-align: center; padding: 12px; background: white; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <h4 style="margin: 0; font-size: 0.95rem; color: #2c3e50;"><i class="fas fa-palette"></i> Personnaliser mon Bureau</h4>
+        <p style="font-size: 0.75rem; color: gray; margin: 2px 0 8px 0;">Choisissez votre ambiance</p>
+        <div class="theme-picker-container" style="display: flex; justify-content: center; gap: 12px;">
+            <div class="theme-dot" style="background: #4CAF50; width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 1px solid rgba(0,0,0,0.1);" onclick="appliquerTheme('#4CAF50', 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)')"></div>
+            <div class="theme-dot" style="background: #2196F3; width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 1px solid rgba(0,0,0,0.1);" onclick="appliquerTheme('#2196F3', 'linear-gradient(135deg, #e0f7fa 0%, #80deea 100%)')"></div>
+            <div class="theme-dot" style="background: #9C27B0; width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 1px solid rgba(0,0,0,0.1);" onclick="appliquerTheme('#9C27B0', 'linear-gradient(135deg, #f3e5f5 0%, #ce93d8 100%)')"></div>
+            <div class="theme-dot" style="background: #FF9800; width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 1px solid rgba(0,0,0,0.1);" onclick="appliquerTheme('#FF9800', 'linear-gradient(135deg, #fff3e0 0%, #ffcc80 100%)')"></div>
+            <div class="theme-dot" style="background: #2c3e50; width: 22px; height: 22px; border-radius: 50%; cursor: pointer; border: 1px solid rgba(0,0,0,0.1);" onclick="appliquerTheme('#2c3e50', 'linear-gradient(135deg, #2c3e50 0%, #000000 100%)')"></div>
+        </div>
+    </div>
+
+    <div class="profile-mini-stats" style="display: flex; justify-content: space-around; margin-top: 12px; background: white; padding: 10px; border-radius: 8px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+        <div class="m-stat"><strong id="stat-seances-compteur" style="display: block; font-size: 1.1rem; color: #2c3e50;">--</strong><span style="font-size:0.75rem; color:gray;">Séances</span></div>
+        <div class="m-stat"><strong id="stat-presence-pourcent" style="display: block; font-size: 1.1rem; color: #2c3e50;">--%</strong><span style="font-size:0.75rem; color:gray;">Présence</span></div>
+        <div class="m-stat"><strong id="stat-membre-rang" style="display: block; font-size: 1.1rem; color: #d4af37;">--</strong><span style="font-size:0.75rem; color:gray;">Statut</span></div>
+    </div>
+        
+    <div class="profile-nav" style="display: flex; gap: 8px; margin-top: 15px;">
+        <button class="p-nav-btn active" style="flex:1; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;" onclick="tabProfil('p-perso', this)">Personnel</button>
+        <button class="p-nav-btn" style="flex:1; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;" onclick="tabProfil('p-famille', this)">Fiche Signalétique</button>
+    </div>
+
+    <div id="p-perso" class="card profile-content" style="margin-top: 10px; padding: 15px; background: white; border-radius: 8px;">
+        
+        <div class="input-group-modern" style="margin-bottom: 15px;">
+            <label><i class="fas fa-user-friends"></i> Prenom (s) </label>
+            <input type="text" id="prof-prenom" placeholder="Prenom ...">
+        </div>
+        <div class="input-group-modern" style="margin-bottom: 12px;">
+            <label><i class="fas fa-user"></i> Nom (s)</label>
+            <input type="text" id="prof-nom" placeholder="Nom ...">
+        </div>
+        <div class="input-group-modern" style="margin-bottom: 12px;">
+            <label><i class="fas fa-envelope"></i> Adresse Électronique </label>
+            <input type="email" id="prof-email" placeholder="Email ...">
+        <div class="input-group-modern" style="margin-bottom: 12px;">
+            <label><i class="fas fa-phone"></i> Numéro Téléphone</label>
+            <input type="tel" id="prof-tel">
+        </div>
+        <div class="input-group-modern" style="margin-bottom: 12px;">
+            <label><i class="fas fa-birthday-cake"></i> Date de Naissance / Anniversaire</label>
+            <input type="text" id="prof-anniv" placeholder="Ex: 26 mai">
+        </div>
+        <div class="input-group-modern" style="margin-bottom: 12px;">
+            <label><i class="fas fa-venus-mars"></i> Sexe</label>
+            <select id="prof-genre" style="width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #ddd;">
+                <option value="Masculin">Masculin</option>
+                <option value="Féminin">Féminin</option>
+            </select>
+        </div>
+        <div class="input-group-modern" style="margin-bottom: 18px;">
+            <label><i class="fas fa-map-marker-alt"></i> Quartier de Résidence</label>
+            <input type="text" id="prof-quart">
+        </div>
+
+        <div class="card" style="border-left: 5px solid #3498db; background: #fafafa; padding: 10px; margin-bottom: 15px;">
+            <h4 style="margin:0 0 5px 0; font-size:0.9rem;"><i class="fas fa-user-lock"></i> Sécurité d'accès</h4>
+            <p style="font-size:0.75rem; color:gray; margin: 0 0 8px 0;">Modifiez votre mot de passe d'accès / PIN.</p>
+            <div id="pin-status-box" style="margin-bottom:10px; font-weight:bold; font-size:0.85rem;">
+                Statut : <span id="pin-label" style="color:#e74c3c;">Désactivé 🔓</span>
+            </div>
+            <div class="input-group-modern">
+                <label style="font-size:0.75rem;">Nouveau Code PIN (4 chiffres)</label>
+                <input type="password" id="prof-nouveau-pin" placeholder="Ex: 1234" maxlength="4" style="letter-spacing: 4px; font-weight: bold;">
+            </div>
+        </div>
+
+        <button class="btn-save-modern" style="width: 100%; padding: 10px; font-weight: bold; background-color: #27ae60;" onclick="sauvegarderFicheParametres('personnel')">Mettre à jour mon profil</button>
+    </div>
+
+    <div class="card" style="padding: 15px; margin: 12px; background: #fff;">
+    <h3><i class="fas fa-fingerprint" style="color: #00897b;"></i> Sécurité Biométrique</h3>
+    <p style="font-size: 0.8rem; color: gray;">Évitez de taper votre code à chaque fois. Connectez-vous avec votre empreinte ou FaceID.</p>
+    
+    <button class="btn-save-modern" onclick="activerBiometrie()" style="background: #00897b; color: white; border: none; padding: 8px 15px; border-radius: 8px; cursor: pointer;">
+        Lier mon empreinte / FaceID
+    </button>
+</div>
+
+    <div id="p-famille" class="card profile-content hidden" style="margin-top: 10px; padding: 15px; background: white; border-radius: 8px;">
+        
+        <div class="input-group-modern" style="margin-bottom: 12px;">
+            <label><i class="fas fa-user-tie"></i> Nom complet du Père</label>
+            <input type="text" id="prof-pere" placeholder="Nom et prénom du père...">
+        </div>
+        <div class="input-group-modern" style="margin-bottom: 15px;">
+            <label><i class="fas fa-user-friends"></i> Nom complet de la Mère</label>
+            <input type="text" id="prof-mere" placeholder="Nom et prénom de la mère...">
+        </div>
+        
+        <div style="background: #fdfaf6; border-left: 4px solid #e67e22; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+            <h5 style="margin: 0 0 8px 0; color: #d35400; font-size: 0.85rem;"><i class="fas fa-exclamation-triangle"></i> En cas d'urgence</h5>
+            <div class="input-group-modern" style="margin-bottom: 10px;">
+                <label>Personne urgente à contacter (Héritier)</label>
+                <input type="text" id="prof-heritier" placeholder="Nom de la personne de confiance...">
+            </div>
+            <div class="input-group-modern" style="margin-bottom: 5px;">
+                <label>Téléphone de l'urgence (Héritier)</label>
+                <input type="tel" id="prof-numerotel" placeholder="Ex: +242 06...">
+            </div>
+        </div>
+
+        <button class="btn-save-modern" style="width: 100%; padding: 10px; font-weight: bold; background-color: #27ae60;" onclick="sauvegarderFicheParametres('signalitique')">Enregistrer la fiche signalétique</button>
+        <button onclick="genererFichePDF()" class="btn-pdf-modern" style="width: 100%; padding: 10px; margin-top: 8px; background: #34495e; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;"><i class="fas fa-file-pdf"></i> Télécharger ma Fiche PDF</button>
+    </div>
+
+    <div style="padding: 15px; text-align: center;">
+        <button onclick="ouvrirZoneAdmin()" class="btn-admin-discret" style="background: none; border: none; color: gray; font-size: 0.8rem; cursor: pointer;">Accès Bureau Officier</button>
+    </div>
+
+    <div class="card" style="margin-top: 10px; border: 1px solid #dc3545; padding: 12px; border-radius: 8px;">
+        <h4 style="color: #dc3545; margin: 0 0 4px 0; font-size: 0.95rem;">Options de Compte</h4>
+        <button onclick="deconnexionTontine()" class="btn-save-modern" style="background-color: #dc3545; color: white; width: 95%; padding: 8px; font-weight: bold;">
+            Me Déconnecter
+        </button>
+    </div>
+
+</section>
+
+        <section id="page-admin" class="app-page hidden admin-view">
+    <div class="section-title">
+        <button onclick="nav('params', this)" class="btn-back"><i class="fas fa-arrow-left"></i> Retour</button>
+        <h3 id="admin-title">Bureau</h3>
+    </div>
+
+    <div id="box-tresorier" class="card admin-card hidden">
+        <h4><i class="fas fa-edit"></i> Saisie Séance</h4>
+        <label>Sélectionner le membre :</label>
+        <select id="adm-membre-select" style="width:100%; margin-bottom:15px; padding:10px;"></select>
+        
+        <div class="grid-saisie">
+            <div class="col-saisie"><label>Présence</label><input type="number" id="s-pres" value="0"></div>
+            <div class="col-saisie"><label>Épargne</label><input type="number" id="s-epar" value="0"></div>
+            <div class="col-saisie"><label>Caisse Épargne</label><input type="number" id="s-caisse-epar" value="0"></div>
+            <div class="col-saisie"><label>Secours</label><input type="number" id="s-sec" value="0"></div>
+            <div class="col-saisie"><label>Scolaire</label><input type="number" id="s-scol" value="0"></div>
+            <div class="col-saisie"><label>Invest.</label><input type="number" id="s-inv" value="0"></div>
+            <div class="col-saisie"><label>Emp. Ord.</label><input type="number" id="s-emp" value="0"></div>
+            <div class="col-saisie"><label>Emp. Spécial</label><input type="number" id="s-empsp" value="0"></div>
+            <div class="col-saisie"><label>Sanctions</label><input type="number" id="s-sanc" value="0"></div>
+            <div class="col-saisie"><label>Solidarité</label><input type="number" id="s-soli" value="0"></div>
+        </div>
+        
+        <button class="btn-save-modern" style="margin-top: 20px;" onclick="validerLigneTresorier()">Valider la Ligne</button>
+    </div>
+
+    <div id="box-commissaire" class="card admin-card hidden"><h4>Expertise</h4><div id="list-expertise"></div></div>
+   
+    <div id="box-secretaire" class="card admin-card hidden" style="height: auto !important; max-height: none !important; overflow: visible !important;">
+    <h4><i class="fas fa-user-cog"></i> Espace Secrétaire Général</h4>
+    <p class="admin-help-text">Gestion indépendante des séances, des annonces et des rapports.</p>
+    
+    <div style="border: 1px solid #eee; padding: 15px; border-radius: 8px; margin-bottom: 20px; background: #fafafa; display: block; height: auto; min-height: max-content; overflow: visible;">
+        <h5 style="margin-top:0;"><i class="fas fa-calendar-alt" style="color: #27ae60;"></i> Planifier les Séances</h5>
+        
+        <div class="input-group-modern admin-group-spacing">
+            <label>Date de la Prochaine Séance</label>
+            <input type="date" id="config-date-seance" class="admin-input-control">
+        </div>
+        
+        <div class="input-group-modern admin-group-spacing">
+            <label>Fréquence des Réunions</label>
+            <select id="config-frequence-seance" class="admin-input-control">
+                <option value="7">Chaque semaine (7 jours)</option>
+                <option value="14" selected>Chaque 2 semaines (14 jours)</option>
+                <option value="30">Chaque mois (30 jours)</option>
+            </select>
+        </div>
+        
+        <div class="input-group-modern admin-group-spacing">
+            <label><i class="fas fa-image"></i> Image d'illustration de la séance (PNG, JPG)</label>
+            <input type="file" id="config-photo-upload" class="admin-input-control" accept="image/*" style="padding:5px;">
+        </div>
+        
+        <button class="btn-save-modern" style="width: 100%; background-color: #27ae60; display: block; margin-top: 10px;" onclick="enregistrerSeulementAgenda()">
+            Mettre à jour l'agenda uniquement
+        </button>
+    </div>
+
+    <div style="border: 1px solid #eee; padding: 15px; border-radius: 8px; margin-bottom: 20px; background: #fafafa; display: block; height: auto; min-height: max-content; overflow: visible;">
+        <h5 style="margin-top:0;"><i class="fas fa-bullhorn" style="color: #e67e22;"></i> Diffuser un Flash Info</h5>
+        <div class="input-group-modern admin-group-spacing">
+            <label>Message aux Membres</label>
+            <textarea id="bureau-notif-input" placeholder="Ex: Rappel ! La réunion commencera à 14h..." class="admin-input-control" style="height: 60px; font-family: inherit; resize: none; padding: 8px;"></textarea>
+        </div>
+        <button class="btn-save-modern" style="width: 100%; background-color: #e67e22; display: block; margin-top: 10px;" onclick="publierSeulementAnnonce()">
+            Mettre à jour le message flash
+        </button>
+    </div>
+
+    <div style="border: 1px solid #eee; padding: 15px; border-radius: 8px; background: #fafafa; display: block; height: auto; min-height: max-content; overflow: visible;">
+        <h5 style="margin-top:0;"><i class="fas fa-file-upload" style="color: #2980b9;"></i> Publier un Document / Rapport</h5>
+        <div class="input-group-modern admin-group-spacing">
+            <label>Titre du document (ex: Rapport AG Décembre 2026)</label>
+            <input type="text" id="sec-titre-doc" class="admin-input-control" placeholder="Entrez le titre...">
+        </div>
+        <div class="input-group-modern admin-group-spacing">
+            <label>Sélectionner le fichier (PDF, Image, Doc... Max 1Mo)</label>
+            <input type="file" id="sec-fichier-input" class="admin-input-control" style="padding:5px;">
+        </div>
+        <button class="btn-save-modern" style="width: 100%; background-color: #2980b9; display: block; margin-top: 10px;" onclick="ajouterFichierTontine('sec')">
+            Ajouter le document au registre
+        </button>
+    </div>
+</div>
+
+
+   <div id="box-president" class="card admin-card hidden">
+    <h4><i class="fas fa-user-shield"></i> Gestion du Bureau (Droits)</h4>
+    <p class="admin-help-text">Attribuez les rôles et déléguez les accès officiels.</p>
+    
+    <div class="input-group-modern admin-group-spacing">
+    <label><i class="fas fa-users"></i> Sélectionner le Membre de la Réunion</label>
+    <select id="pres-membre-select" class="pres-select-control"></select>
+</div>
+    <div class="input-group-modern admin-group-spacing">
+        <label>Attribuer le Rôle</label>
+        <select id="pres-role-select" class="admin-input-control">
+            <option value="Membre">Simple Membre</option>
+            <option value="Secrétaire Général">Secrétaire Général</option>
+            <option value="Trésorier">Trésorier</option>
+            <option value="Commissaire aux comptes">Commissaire aux comptes</option>
+        </select>
+    </div>
+
+    <button class="btn-save-modern" onclick="appliquerRoleBureau()">Nommer à ce poste</button>
+
+    <h4 class="admin-divider">Clôture de Séance</h4>
+    <button onclick="clotureSession()" class="btn-admin-submit">Clôturer la Séance Actuelle</button>
+
+    <div style="border: 1px solid #eee; padding: 15px; border-radius: 8px; margin-top: 20px; background: #fafafa;">
+        <h5 style="margin-top:0; color:var(--primary-color);"><i class="fas fa-file-upload"></i> Espace Documents & Décisions (Président)</h5>
+        <div class="input-group-modern admin-group-spacing">
+            <label>Titre du document ou décret</label>
+            <input type="text" id="pres-titre-doc" class="admin-input-control" placeholder="Ex: Décision de Bureau N°1...">
+        </div>
+        <div class="input-group-modern admin-group-spacing">
+            <label>Sélectionner le fichier</label>
+            <input type="file" id="pres-fichier-input" class="admin-input-control" style="padding:5px;">
+        </div>
+        <button class="btn-save-modern" style="width: 100%;" onclick="ajouterFichierTontine('pres')">Publier le document officiel</button>
+    </div>
+
+    <div class="card" style="border-left: 5px solid #d4af37; background: #fffdf5; margin-top: 15px;">
+    <h4 style="color: #8a6d3b;"><i class="fas fa-key"></i> Infos de la Réunion</h4>
+    <p style="font-size: 0.9rem; margin: 5px 0;">
+        Code d'invitation : <strong id="display-invite-code" style="color:var(--primary); font-size: 1.1rem;">---</strong>
+    </p>
+    <p style="font-size: 0.8rem; color: #666;">
+        Partagez ce code avec vos membres pour qu'ils rejoignent la liste.
+    </p>
+    <button onclick="copierCode()" class="btn-pdf-modern" style="padding: 5px 10px; font-size: 0.7rem;">
+        <i class="fas fa-copy"></i> Copier le code
+    </button>
+</div>
+</section>
+
+    </main>
+
+    <nav class="bottom-bar">
+        <div class="nav-btn active" onclick="nav('home', this)"><i class="fas fa-wallet"></i><span>Portefeuille</span></div>
+        <div class="nav-btn" onclick="nav('annonces', this)"><i class="fas fa-bullhorn"></i><span>Annonces</span></div>
+        <div class="nav-btn" onclick="nav('rapports', this)"><i class="fas fa-file-alt"></i><span>Rapports</span></div>
+        <div class="nav-btn" onclick="nav('params', this)"><i class="fas fa-cog"></i><span>Paramètres</span></div>
+    </nav>
+    
+<div id="custom-modal" class="modal-overlay hidden">
+    <div class="modal-box">
+        <div class="modal-icon">💡</div>
+        <h3 id="modal-title">Notification</h3>
+        <p id="modal-message">Message de l'application...</p>
+        <button onclick="fermerModale()" class="modal-btn">D'accord</button>
+    </div>
+</div>
+    <script src="IB.js"></script>
+</body>
+</html>
