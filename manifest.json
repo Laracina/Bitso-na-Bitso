@@ -1,0 +1,23 @@
+{
+  "short_name": "Bitcho-na-Bitcho",
+  "name": "Bitchô Na Bitchô - Gestion Solidaire & Tontine",
+  "description": "Plateforme Fintech de gestion solidaire et communautaire de tontines",
+  "icons": [
+    {
+      "src": "icons/icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "./index.html",
+  "background_color": "#f4f7f6",
+  "theme_color": "#00897b",
+  "display": "standalone",
+  "orientation": "portrait-primary"
+}
